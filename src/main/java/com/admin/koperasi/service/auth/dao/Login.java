@@ -24,7 +24,7 @@ public class Login {
     private NamedParameterJdbcTemplate template;
 
     public Optional<UserAdmin> getUserAdminById(String username) {
-        String SQL = "SELECT ID, USERNAME, PASSWORD, NAME FROM TA_USER WHERE USERNAME = ?";
+        String SQL = "SELECT \"ID\", \"USERNAME\", \"PASSWORD\", \"NAME\" FROM \"TA_USER\" WHERE \"USERNAME\" = ?";
         try {
             return Optional.of(jdbcTemplate.queryForObject(SQL, (rs, rownum) -> {
                 UserAdmin kab = new UserAdmin();
@@ -41,8 +41,8 @@ public class Login {
     }
 
     public List<String> getRolesByUserName(String username){
-        String query = "SELECT ROLE_NAME FROM TA_ROLE TR JOIN TA_USER_ROLE TUR ON (TR.ID = TUR.ROLES_ID)" +
-                " JOIN TA_USER TU ON (TU.ID = TUR.USER_ID) WHERE TU.USERNAME = ?";
+        String query = "SELECT TR.\"ROLE_NAME\" FROM \"TA_ROLE\" TR JOIN \"TA_USER_ROLES\" TUR ON (TR.\"ID\" = TUR.\"ROLES_ID\")" +
+                " JOIN \"TA_USER\" TU ON (TU.\"ID\" = TUR.\"USER_ID\") WHERE TU.\"USERNAME\" = ?";
 
         Object param[] = {username};
 
@@ -54,8 +54,8 @@ public class Login {
     }
 
     public StatusLogin cekLoginValid(InfoLogin user){
-        String baseQuery = "SELECT TU.USERNAME FROM TA_LOGIN_INFO TLI INNER " +
-                "JOIN TA_USER TU ON TU.ID = TLI.USER_ID where TLI.TOKEN_KEY = ?";
+        String baseQuery = "SELECT TU.\"USERNAME\" FROM \"TA_LOGIN_INFO\" TLI INNER " +
+                "JOIN \"TA_USER\" TU ON TU.\"ID\" = TLI.\"USER_ID\" WHERE TLI.\"TOKEN_KEY\" = ?";
         StatusLogin slogin = new StatusLogin();
         try{
             boolean isValid = false;
@@ -82,13 +82,13 @@ public class Login {
     }
 
     public void insertInfoLogin(Map<String, Object> param){
-        String SQL = "INSERT INTO TA_LOGIN_INFO (USER_ID, TOKEN_KEY) VALUES (?,?)";
+        String SQL = "INSERT INTO \"TA_LOGIN_INFO\" (\"ID_USER\", \"TOKEN_KEY\", \"SINCE\") VALUES (?,?,current_timestamp)";
         Object parameter[] = {param.get("userid"), param.get("token")};
         jdbcTemplate.update(SQL, parameter);
     }
 
     public void logout(String token) throws DataAccessException {
-        String baseQuery = "DELETE FROM TA_LOGIN_INFO WHERE TOKEN_KEY = :tokenkey";
+        String baseQuery = "DELETE FROM \"TA_LOGIN_INFO\" WHERE \"TOKEN_KEY\" = :tokenkey";
 
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("tokenkey", token);
@@ -97,7 +97,7 @@ public class Login {
     }
 
     public void clearLoginStory(String userid) throws DataAccessException {
-        String baseQuery = "DELETE FROM TA_LOGIN_INFO WHERE USER_ID = :userid";
+        String baseQuery = "DELETE FROM \"TA_LOGIN_INFO\" WHERE \"ID_USER\" = :userid";
 
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("userid", userid);

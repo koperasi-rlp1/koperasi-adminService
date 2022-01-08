@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @Controller
-@RequestMapping(path = "/api/auth")
+@RequestMapping(path = "/admin/auth")
 public class AuthController {
 
     @Autowired
