@@ -55,7 +55,7 @@ public class Login {
 
     public StatusLogin cekLoginValid(InfoLogin user){
         String baseQuery = "SELECT TU.\"USERNAME\" FROM \"TA_LOGIN_INFO\" TLI INNER " +
-                "JOIN \"TA_USER\" TU ON TU.\"ID\" = TLI.\"USER_ID\" WHERE TLI.\"TOKEN_KEY\" = ?";
+                "JOIN \"TA_USER\" TU ON TU.\"ID\" = TLI.\"ID_USER\" WHERE TLI.\"TOKEN_KEY\" = ?";
         StatusLogin slogin = new StatusLogin();
         try{
             boolean isValid = false;

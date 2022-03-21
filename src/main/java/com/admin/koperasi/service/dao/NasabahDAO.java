@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class NasabahDAO {
@@ -21,7 +22,7 @@ public class NasabahDAO {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public List<Nasabah> findNasabahByStatusKeanggotaan(Integer statusKeanggotaan) throws EmptyResultDataAccessException {
-        String baseQuery = "SELECT * FROM NASABAH WHERE STATUS_KEANGGOTAAN = :statusKeanggotaan";
+        String baseQuery = "SELECT * FROM \"NASABAH\" WHERE \"ID_STATUS_KEANGGOTAAN\" = :statusKeanggotaan";
 
         MapSqlParameterSource parameterSource = new MapSqlParameterSource();
         parameterSource.addValue("statusKeanggotaan", statusKeanggotaan);
@@ -37,9 +38,35 @@ public class NasabahDAO {
                 data.setJabatan(resultSet.getString("JABATAN"));
                 data.setUnitOperasional(resultSet.getString("UNIT_OPERASIONAL"));
                 data.setFileBuktiPembayaran(resultSet.getString("BUKTI_PEMBAYARAN"));
+                data.setIdBackup(resultSet.getString("ID_BACKUP"));
                 return data;
             }
         });
+    }
+
+    public Optional<Nasabah> findNasabahByIdBackup(String idBackup) throws EmptyResultDataAccessException {
+        String baseQuery = "SELECT * FROM \"NASABAH\" WHERE \"ID_BACKUP\" = :idBackup";
+
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        parameterSource.addValue("idBackup", idBackup);
+
+        Nasabah data =  namedParameterJdbcTemplate.queryForObject(baseQuery, parameterSource, new RowMapper<Nasabah>() {
+            @Override
+            public Nasabah mapRow(ResultSet resultSet, int i) throws SQLException {
+                Nasabah data = new Nasabah();
+                data.setNip(resultSet.getInt("NIP"));
+                data.setNamaNasabah(resultSet.getString("NAMA_NASABAH"));
+                data.setNoHp(resultSet.getString("NO_HP"));
+                data.setEmail(resultSet.getString("EMAIL"));
+                data.setJabatan(resultSet.getString("JABATAN"));
+                data.setUnitOperasional(resultSet.getString("UNIT_OPERASIONAL"));
+                data.setFileBuktiPembayaran(resultSet.getString("BUKTI_PEMBAYARAN"));
+                data.setIdBackup(resultSet.getString("ID_BACKUP"));
+                return data;
+            }
+        });
+
+         return Optional.of(data);
     }
 
     public void update(NasabahDTO.KonfirmasiPendaftaran value) throws DataAccessException {
