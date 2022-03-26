@@ -13,7 +13,7 @@ public class NasabahDTO {
     @NoArgsConstructor
     public static class KonfirmasiPendaftaran {
 
-        private Integer nip;
+        private String nip;
         private String idBackup;
         private String namaNasabah;
         private String jabatan;

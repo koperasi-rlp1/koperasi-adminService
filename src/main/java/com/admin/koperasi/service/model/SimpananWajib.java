@@ -10,17 +10,12 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransaksiApproval {
-    private Integer nip;
-    private Integer no;
+public class SimpananWajib {
+
     private Integer id;
-    private Integer idApproval;
-    private String jenisTransaksi;
-    private String tanggal;
+    private Integer idTransaksi;
+    private Date tanggal;
     private Time waktu;
     private Long nominalTransaksi;
     private String idNasabah;
-    private String buktiPembayaran;
-    private String deskripsi;
-    private String namaNasabah;
 }

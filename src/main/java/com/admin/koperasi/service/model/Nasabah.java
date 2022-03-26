@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Nasabah {
 
-    private Integer nip;
+    private String nip;
     private String idBackup;
     private String namaNasabah;
     private String jabatan;
