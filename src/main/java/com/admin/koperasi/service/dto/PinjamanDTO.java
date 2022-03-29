@@ -13,6 +13,7 @@ public class PinjamanDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PinjamanApproval{
+        private Integer no;
         private Long id;
         private String idNasabah;
         private Long nominalTransaksi;
@@ -20,6 +21,8 @@ public class PinjamanDTO {
         private Time waktu;
         private Integer bulanBayar;
         private String tujuanPinjam;
+        private String nip;
+        private String namaNasabah;
     }
 
     @Data
@@ -58,19 +61,25 @@ public class PinjamanDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PinjamanParameter{
+        private Integer no;
         private Long id;
         private String idNasabah;
         private Long nominalPinjaman;
+        private Long nominalTransaksi;
         private Integer bulanBayar;
         private Long noPinjaman;
         private String statusTransaksi;
         private String buktiPembayaran;
         private Date tanggalTransaksi;
+        private Date tanggalApprove;
         private String adminAction;
+        private String adminApprove;
         private String alasanTolak;
         private String deskripsi;
         private Long idApproval;
         private String tujuanPinjam;
+        private String nip;
+        private String namaNasabah;
     }
 
 }

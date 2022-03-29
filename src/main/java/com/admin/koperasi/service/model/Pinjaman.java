@@ -13,6 +13,7 @@ public class Pinjaman {
 
     private Long id;
     private String idNasabah;
+    private String namaNasabah;
     private Long nominalPinjaman;
     private Long noPinjaman;
     private String statusTransaksi;

@@ -1,12 +1,13 @@
 package com.admin.koperasi.service.service;
 
 import com.admin.koperasi.service.dao.TransaksiDAO;
-import com.admin.koperasi.service.model.SimpananSukaRela;
-import com.admin.koperasi.service.model.SimpananWajib;
-import com.admin.koperasi.service.model.Transaksi;
-import com.admin.koperasi.service.model.TransaksiBatal;
+import com.admin.koperasi.service.dto.PinjamanDTO;
+import com.admin.koperasi.service.model.*;
+import com.admin.koperasi.service.model.datatables.DataTableRequest;
+import com.admin.koperasi.service.model.datatables.DataTableResponse;
 import com.google.common.base.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -48,5 +49,20 @@ public class TransaksiService {
         }
 
         return transaksi;
+    }
+
+
+    public DataTableResponse<DataNasabah> datatablesDataNasabah(DataTableRequest<DataNasabah> request){
+        DataTableResponse<DataNasabah> data = new DataTableResponse<>();
+        data.setData(dao.datatablesDataNasabah(request));
+        System.out.println(data.getData());
+        data.setRecordTotal(dao.datatablesConfirnDataNasabah(request));
+        data.setRecordFiltered(dao.datatablesConfirnDataNasabah(request));
+        data.setDraw(request.getDraw());
+        return data;
+    }
+
+    public DataKoperasi findDataKoperasi() throws EmptyResultDataAccessException {
+        return dao.findDataKoperasi();
     }
 }
