@@ -52,6 +52,18 @@ public class PinjamanController {
         }
     }
 
+    @PutMapping("/bayar-pinjaman/{id}")
+    public ResponseEntity<?> bayarPinjaman(
+            @PathVariable Long id
+    ){
+        try{
+            Pinjaman pinjaman = service.bayarPinjaman(id);
+            return ResponseEntity.ok().body(pinjaman);
+        } catch (SQLException e){
+            return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/filesupload")
     public ResponseEntity<Map<String, Object>> uploadFile(@RequestParam("file") MultipartFile file) {
         String message = null;
@@ -78,6 +90,13 @@ public class PinjamanController {
             @RequestBody DataTableRequest<PinjamanDTO.PinjamanParameter> request
     ){
         return ResponseEntity.ok().body(service.datatablesConfirm(request));
+    }
+
+    @PostMapping("/datatablesBayar")
+    public ResponseEntity<DataTableResponse<PinjamanDTO.PinjamanParameter>> datatablesBayar(
+            @RequestBody DataTableRequest<PinjamanDTO.PinjamanParameter> request
+    ){
+        return ResponseEntity.ok().body(service.datatablesBayar(request));
     }
 
     @GetMapping(path = "/data-by/{idApproval}")

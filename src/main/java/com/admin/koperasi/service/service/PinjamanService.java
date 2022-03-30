@@ -1,7 +1,9 @@
 package com.admin.koperasi.service.service;
 
+import com.admin.koperasi.service.dao.NasabahDAO;
 import com.admin.koperasi.service.dao.PinjamanDAO;
 import com.admin.koperasi.service.dto.PinjamanDTO;
+import com.admin.koperasi.service.model.Nasabah;
 import com.admin.koperasi.service.model.Pinjaman;
 import com.admin.koperasi.service.model.TransaksiApproval;
 import com.admin.koperasi.service.model.datatables.DataTableRequest;
@@ -21,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +32,9 @@ public class PinjamanService {
 
     @Autowired
     private PinjamanDAO dao;
+
+    @Autowired
+    private NasabahDAO nasabahDAO;
 
     @Value("${file.path.pinjaman}")
     private String basePath;
@@ -43,6 +49,16 @@ public class PinjamanService {
         return data;
     }
 
+    public DataTableResponse<PinjamanDTO.PinjamanParameter> datatablesBayar(DataTableRequest<PinjamanDTO.PinjamanParameter> request){
+        DataTableResponse<PinjamanDTO.PinjamanParameter> data = new DataTableResponse<>();
+        data.setData(dao.datatablesBayar(request));
+        System.out.println(data.getData());
+        data.setRecordTotal(dao.datatablesBayarCount(request));
+        data.setRecordFiltered(dao.datatablesBayarCount(request));
+        data.setDraw(request.getDraw());
+        return data;
+    }
+
     public DataTableResponse<PinjamanDTO.PinjamanApproval> datatablesApproval(DataTableRequest<PinjamanDTO.PinjamanApproval> request){
         DataTableResponse<PinjamanDTO.PinjamanApproval> data = new DataTableResponse<>();
         data.setData(dao.datatablesApproval(request));
@@ -51,6 +67,64 @@ public class PinjamanService {
         data.setRecordFiltered(dao.datatablesApprovalCount(request));
         data.setDraw(request.getDraw());
         return data;
+    }
+
+    @Transactional
+    public Pinjaman bayarPinjaman(Long id) throws SQLException {
+        Pinjaman pinjaman = new Pinjaman();
+        Optional<PinjamanDTO.PinjamanTerima> pinjamanTerima = dao.getPinjamanByid(id);
+        PinjamanDTO.PinjamanParameter parameter = new PinjamanDTO.PinjamanParameter();
+        parameter.setIdNasabah(pinjamanTerima.get().getIdNasabah());
+        parameter.setNoPinjaman(pinjamanTerima.get().getId());
+        parameter.setStatusTransaksi("bayar");
+        Optional<Nasabah> nasabah = nasabahDAO.findNasabahByIdBackup(pinjamanTerima.get().getIdNasabah());
+        String guru = "GURU";
+        String pns = "GURU (PNS)";
+        String tu = "STAF TU";
+        LocalDate localDate = LocalDate.now();
+        Long potongan;
+        Long sisaPinjaman;
+        if(Objects.equal(nasabah.get().getJabatan(), guru)){
+            if (localDate.getDayOfMonth() == 17){
+                dao.savePinjamTransaksi(parameter);
+                potongan = pinjamanTerima.get().getTotalPinjaman()/pinjamanTerima.get().getBulanBayar();
+                sisaPinjaman = pinjamanTerima.get().getTotalPinjaman() - potongan;
+                pinjamanTerima.get().setSisaPinjaman(sisaPinjaman);
+                pinjamanTerima.get().setSisaBulanBayar(pinjamanTerima.get().getBulanBayar()-1);
+                dao.potonganBayar(pinjamanTerima.get());
+                pinjaman.setDeskripsi("berhasil");
+            }
+        } else if(Objects.equal(nasabah.get().getJabatan(), pns)){
+            if (localDate.getDayOfMonth() == 1){
+                dao.savePinjamTransaksi(parameter);
+                potongan = pinjamanTerima.get().getTotalPinjaman()/pinjamanTerima.get().getBulanBayar();
+                sisaPinjaman = pinjamanTerima.get().getTotalPinjaman() - potongan;
+                pinjamanTerima.get().setSisaPinjaman(sisaPinjaman);
+                pinjamanTerima.get().setSisaBulanBayar(pinjamanTerima.get().getBulanBayar()-1);
+                dao.potonganBayar(pinjamanTerima.get());
+                pinjaman.setDeskripsi("berhasil");
+            }
+        } else if(Objects.equal(nasabah.get().getJabatan(), tu)){
+            if (localDate.getDayOfMonth() == 30){
+                dao.savePinjamTransaksi(parameter);
+                potongan = pinjamanTerima.get().getTotalPinjaman()/pinjamanTerima.get().getBulanBayar();
+                sisaPinjaman = pinjamanTerima.get().getTotalPinjaman() - potongan;
+                pinjamanTerima.get().setSisaPinjaman(sisaPinjaman);
+                pinjamanTerima.get().setSisaBulanBayar(pinjamanTerima.get().getBulanBayar()-1);
+                dao.potonganBayar(pinjamanTerima.get());
+                pinjaman.setDeskripsi("berhasil");
+            }
+        } else {
+            potongan = pinjamanTerima.get().getTotalPinjaman()/pinjamanTerima.get().getBulanBayar();
+            sisaPinjaman = pinjamanTerima.get().getTotalPinjaman() - potongan;
+            parameter.setNominalTransaksi(potongan);
+            dao.savePinjamTransaksi(parameter);
+            pinjamanTerima.get().setSisaPinjaman(sisaPinjaman);
+            pinjamanTerima.get().setSisaBulanBayar(pinjamanTerima.get().getBulanBayar()-1);
+            dao.potonganBayar(pinjamanTerima.get());
+            pinjaman.setDeskripsi("berhasil");
+        }
+        return pinjaman;
     }
 
     @Transactional
@@ -128,6 +202,7 @@ public class PinjamanService {
     public Optional<PinjamanDTO.PinjamanApproval> getTransaksiApproval(Long idApproval){
         return dao.getDataTransaksiApproval(idApproval);
     }
+
 
     public Optional<Pinjaman> getTransaksi(Long idApproval){
         return dao.getDataTransaksi(idApproval);

@@ -80,6 +80,9 @@ public class PinjamanDTO {
         private String tujuanPinjam;
         private String nip;
         private String namaNasabah;
+        private Long sisaPinjaman;
+        private Integer sisaBulanBayar;
     }
+
 
 }

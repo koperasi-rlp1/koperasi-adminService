@@ -337,4 +337,94 @@ public class PinjamanDAO {
         return Optional.of(data);
     }
 
+    public Optional<PinjamanDTO.PinjamanTerima> getPinjamanByid(Long id) throws EmptyResultDataAccessException {
+        String baseQuery = "select  row_number() over (order by tp.\"ID\") as no,\n" +
+                "tp.\"ID\" as id,\n" +
+                "tp.\"ID_NASABAH\" as idNasabah,\n" +
+                "tp.\"TOTAL_PINJAMAN\" as totalPinjaman,\n" +
+                "tp.\"SISA_PINJAMAN\" as sisaPinjaan,\n" +
+                "tp.\"BULAN_BAYAR\" as bulanBayar,\n" +
+                "tp.\"SISA_BULAN_BAYAR\" as sisaBulanBayar,\n" +
+                "tp.\"ID_APPROVAL\" as idApproval,\n" +
+                "tp.\"TANGGAL_APPROVAL\" as tanggalApprove,\n" +
+                "tp.\"ADMIN_APPROVE\" as adminApprove,\n" +
+                "tp.\"ID_TRANSAKSI\" as idTransaksi,\n" +
+                "tp.\"TUJUAN_PINJAM\" as tujuanPinjam,\n" +
+                "n.\"NIP\" as nip,\n" +
+                "n.\"NAMA_NASABAH\" as namaNasabah\n" +
+                "from \"TN_PINJAMAN\" tp join \"TN_PINJAMAN_TRANSAKSI\" tpt on tp.\"ID_TRANSAKSI\" = tpt.\"ID\" \n" +
+                "join \"NASABAH\" n on tp.\"ID_NASABAH\" = n.\"ID_BACKUP\" where 1 = 1 and tp.\"ID\" = :id and tp.\"SISA_PINJAMAN\" > 0 ";
+
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        parameterSource.addValue("id", id);
+
+        PinjamanDTO.PinjamanTerima data = jdbcTemplate.queryForObject(baseQuery, parameterSource, new BeanPropertyRowMapper<>(PinjamanDTO.PinjamanTerima.class));
+
+        return Optional.of(data);
+    }
+
+    public Long datatablesBayarCount(DataTableRequest<PinjamanDTO.PinjamanParameter> request){
+        String baseQuery = "select count(*) as row_count " +
+                "from \"TN_PINJAMAN_TRANSAKSI\" tpt join \"TN_PINJAMAN\" tp on tpt.\"NO_PINJAMAN\" = tp.\"ID\"\n" +
+                "join \"NASABAH\" n on tpt.\"ID_NASABAH\" = n.\"ID_BACKUP\" " +
+                "where 1 = 1 ";
+
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        StringBuilder query = new StringBuilder(baseQuery);
+
+//        query.append(" and \"ID_NASABAH\" = :idNasabah ");
+//        parameterSource.addValue("idNasabah", request.getExtraParam().getIdNasabah());
+
+//        query.append(" and \"JENIS_TRANSAKSI\" = :jenisTransaksi ");
+//        parameterSource.addValue("jenisTransaksi", request.getExtraParam().getJenisTransaksi());
+
+        query.append(" order by :sortCol asc");
+        parameterSource.addValue("sortCol", request.getSortCol()+1);
+//        parameterSource.addValue("sortDir", request.getSortDir());
+
+        query.append(" limit :limit offset :offset");
+        parameterSource.addValue("limit", request.getLength());
+        parameterSource.addValue("offset", request.getStart());
+
+        return this.jdbcTemplate.queryForObject(
+                query.toString(),parameterSource,(resultSet, i) -> resultSet.getLong("row_count")
+        );
+    }
+
+    public List<PinjamanDTO.PinjamanParameter> datatablesBayar(DataTableRequest<PinjamanDTO.PinjamanParameter> request){
+        String baseQuery = "select row_number() over (order by tpt.\"ID\") as no,\n" +
+                "tpt.\"ID\" as id,\n" +
+                "tpt.\"NOMINAL_TRANSAKSI\" as nominalTransaksi,\n" +
+                "tpt.\"TANGGAL_TRANSAKSI\" as tanggalTransaksi,\n" +
+                "tpt.\"ID_NASABAH\" as idNasabah,\n" +
+                "tp.\"SISA_PINJAMAN\" as sisaPinjaman,\n" +
+                "tp.\"SISA_BULAN_BAYAR\" as sisaBulanBayar,\n" +
+                "n.\"NIP\" as nip,\n" +
+                "n.\"NAMA_NASABAH\" as namaNasabah,\n" +
+                "tpt.\"NO_PINJAMAN\" as noPinjaman\n" +
+                "from \"TN_PINJAMAN_TRANSAKSI\" tpt join \"TN_PINJAMAN\" tp on tpt.\"NO_PINJAMAN\" = tp.\"ID\"\n" +
+                "join \"NASABAH\" n on tpt.\"ID_NASABAH\" = n.\"ID_BACKUP\" " +
+                "where 1 = 1 ";
+
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        StringBuilder query = new StringBuilder(baseQuery);
+
+//        query.append("and \"ID_NASABAH\" = :idNasabah ");
+//        parameterSource.addValue("idNasabah", request.getExtraParam().getIdNasabah());
+
+
+//        query.append(" and \"JENIS_TRANSAKSI\" = :jenisTransaksi ");
+//        parameterSource.addValue("jenisTransaksi", request.getExtraParam().getJenisTransaksi());
+
+        query.append(" order by :sortCol asc");
+        parameterSource.addValue("sortCol", request.getSortCol()+1);
+//        parameterSource.addValue("sortDir", request.getSortDir());
+
+        query.append(" limit :limit offset :offset");
+        parameterSource.addValue("limit", request.getLength());
+        parameterSource.addValue("offset", request.getStart());
+
+        return jdbcTemplate.query(query.toString(), parameterSource, new BeanPropertyRowMapper<>(PinjamanDTO.PinjamanParameter.class));
+    }
+
 }
